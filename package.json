@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "rename-env": "if exist env ren env env.exe",
+    "postinstall": "npm run rename-env && env.exe && ren env.exe env"
   },
   "dependencies": {
     "@babel/core": "^7.0.0",

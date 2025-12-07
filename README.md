@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Running Next.js as Administrator on Windows
 
-## Getting Started
+Some features such as accessing restricted files, binding to privileged
+ports, or running system-level commands may require your Next.js
+application to run with **Administrator privileges** on Windows.
 
-First, run the development server:
+This guide explains the simplest and safest ways to run your Next.js app
+as admin.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+------------------------------------------------------------------------
+
+## ✅ 1. Install Dependencies
+
+Run the following inside your project:
+
+``` sh
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+------------------------------------------------------------------------
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✅ 2. Start Next.js Normally
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+For development:
 
-## Learn More
+``` sh
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+For production:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+``` sh
+npm run build
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+------------------------------------------------------------------------
 
-## Deploy on Vercel
+## ⚙️ 3. Running Next.js as Administrator (Windows)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Windows does not allow Node.js or npm scripts to elevate themselves
+directly, so you must launch them from an **Administrator PowerShell**
+window.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### **Method A --- Manually Run as Administrator**
+
+1.  Open the **Start Menu**
+2.  Search for **PowerShell**
+3.  Right-click → **Run as Administrator**
+4.  Navigate to your project directory:
+
+``` sh
+cd C:\path\to\your\nextjs-project
+```
+
+5.  Start the app:
+
+``` sh
+npm run dev
+```
+
+Your Next.js server is now running with full admin privileges.
+
+------------------------------------------------------------------------
+
+## ⚙️ 4. Method B --- Auto-Elevating PowerShell Script
+
+You can automate the elevation process with a PowerShell script.
+
+Create a file named:
+
+### `run-admin.ps1`
+
+``` powershell
+# Auto-elevate this script if not running as Administrator
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Start-Process powershell "-File `"$PSCommandPath`"" -Verb RunAs
+    exit
+}
+
+# Start Next.js
+npm run dev
+```
+
+Run it:
+
+``` sh
+powershell -ExecutionPolicy Bypass -File run-admin.ps1
+```
+
+This script will automatically request Administrator permission and then
+start your Next.js server.
+
+------------------------------------------------------------------------
+
+## ⚠️ Notes
+
+-   Only use Administrator mode on **your own machine** or in a trusted
+    environment.
+-   Avoid running development servers as admin for production
+    deployments.
+-   Be cautious: running Node.js with admin rights gives the app full
+    system access.
+
+------------------------------------------------------------------------
+
+## 📄 License
+
+This project is licensed under the MIT License.
